@@ -1,4 +1,5 @@
 from format import *
+from random import randrange
 
 mel = [#nte('B-4', 0.5), nte('G4', 0.5), 
 nteD('D4', 2, 1), nte('B-3', 0.5), nte('C4', 0.5), 
@@ -16,15 +17,37 @@ chrd("F2", "A-2", "B2", "D-3", 2), chrd("E-2", "G2", "B-2", "D3", 2), chrd("E-2"
 chrd("F2", "A-2", "C3", "E-3", 2), chrd("F2", "A-2", "B-2", "D3", 2), chrd("F2", "G2", "B-2", "D3", 2),
 chrd("G2", "B-2", "C3", "E3", 2), chrd("A-2", "C3", "E-3", "F3", 2), chrd("A-2", "B-2", "D3", "F3", 2)]
 
+
+adapt = []
+rest = True
+rand = 0.0
+total = 0.0
+songLength = 32
+while total < songLength:
+    rand = 0.25 + (randrange(4) + 1)
+    if rand + total > songLength:
+        rand = songLength - total
+    if rest:
+        adapt.append(nte('R', rand))
+    else:
+        adapt.append(nte('C', rand))
+    total += rand
+    rest = not rest
+
+
 score = stream.Score()
+adaptive = stream.Part()
 melody = stream.Part()
 chords = stream.Part()
 
+for elt in adapt:
+    adaptive.append(elt)
 for elt in mel:
     melody.append(elt)
 for elt in prog:
     chords.append(elt)
 
+score.insert([0, adaptive])
 score.insert([0, melody])
 score.insert([0, chords])
 
