@@ -2,6 +2,9 @@ import sqlite3
 from format import *
 from random import randrange
 
+TONES = ["C", "D-", "D", "E-", "E", "F", "G-", "G", "A-", "A", "B-", "B"]
+INTERVALS = ["b.II", "II", "b.III", "III", "IV", "b.V", "V", "b.VI", "VI", "b.VII", "VII" ]
+
 mel = [#nte('B-4', 0.5), nte('G4', 0.5), 
 nteD('D4', 2, 1), nte('B-3', 0.5), nte('C4', 0.5), 
 nte('D-4',0.5), nte('C5',0.5), nte('C5',0.5), nte('C5',0.5), nte('C5',0.5), nte('B-4',0.5), nte('G4',0.5), nte('E-4',0.5),
@@ -22,17 +25,59 @@ cursor = db.cursor()
 
 adapt = []
 rest = True
-rand = 0.0
-total = 0.0
+rand, total, progTotal = 0.0, 0.0, prog1[0][1]
+progIndex = 0
 songLength = 32
 while total < songLength:
+    if progTotal <= total:
+        progIndex += 1
+        progTotal += prog1[progIndex][1]
+    
     rand = 0.5 * (randrange(4) + 1)
     if rand + total > songLength:
         rand = songLength - total
     if rest:
         adapt.append(nte('R', rand))
     else:
-        adapt.append(nte('C', rand))
+        type = prog1[progIndex][0]
+        # print(type)
+        tone = TONES.index(type[0])
+        if type[1] == 'b':
+            tone -= 1
+
+        if type[2] == 'M':
+            type = "M7"
+        elif type[2] == '7':
+            type = "7"
+        elif type[2] == 'm':
+            type = "m7"
+        elif type[2] == '0':
+            type = "07"
+        else:
+            type = "o7"
+        
+        sql = '''SELECT Next, Type FROM ChordProg 
+        WHERE Curr = '%s' AND DIST = 1
+        ORDER BY RANDOM() LIMIT 1'''
+        nextChrd = cursor.execute(sql % type)
+        nextChrd = nextChrd.fetchone()
+        if len(nextChrd[0]) < 6:
+            tone += INTERVALS.index(nextChrd[0]) + 1
+        else:
+            if nextChrd[0][:2] == "I/":
+                tone = 0
+            elif nextChrd[0][0] == "b":
+                tone = 1
+            else:
+                tone = 2
+        tone %= 12
+        # print(f"{str(progIndex)}  : {nextChrd}     : {tone}")
+        nextChrdStr = TONES[tone]
+        if len(nextChrdStr) < 2:
+            nextChrdStr += '_'
+        nextChrdStr += nextChrd[1][0]
+        # print(nextChrdStr)
+        adapt.append(singleChord([nextChrdStr, rand]))
     total += rand
     rest = not rest
 
