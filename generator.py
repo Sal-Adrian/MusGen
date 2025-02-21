@@ -58,10 +58,18 @@ def main():
                 type = "o7"
             
             sql = '''SELECT Next, Type FROM ChordProg 
-            WHERE Curr = '%s' AND DIST = 1
+            WHERE Curr = '%s' AND DIST = 1 AND InCurrScale_1 = 1 AND 
+            InCurrScale_2 = 1 AND InCurrScale_3 = 1 AND InCurrScale_4 = 1
             ORDER BY RANDOM() LIMIT 1'''
             nextChrd = cursor.execute(sql % type)
             nextChrd = nextChrd.fetchone()
+            if not nextChrd:
+                sql = '''SELECT Next, Type FROM ChordProg 
+                WHERE Curr = '%s' AND DIST = 2 AND InCurrScale_1 = 1 AND 
+                InCurrScale_2 = 1 AND InCurrScale_3 = 1 AND InCurrScale_4 = 1
+                ORDER BY RANDOM() LIMIT 1'''
+                nextChrd = cursor.execute(sql % type)
+                nextChrd = nextChrd.fetchone()
             if len(nextChrd[0]) < 6:
                 tone += INTERVALS.index(nextChrd[0]) + 1
             else:
