@@ -17,7 +17,7 @@ prog1 = [["EbM", 4], ["BbM", 2], ["Eb7", 2], ["AbM", 4], ["Abm", 2], ["Db7", 2],
 prog = progression(prog1)
 
 
-db = sqlite3.connect('#GenChord.db')
+db = sqlite3.connect('Chord.db')
 cursor = db.cursor()
 
 adapt = []
@@ -26,7 +26,7 @@ rand = 0.0
 total = 0.0
 songLength = 32
 while total < songLength:
-    rand = 0.25 + (randrange(4) + 1)
+    rand = 0.5 * (randrange(4) + 1)
     if rand + total > songLength:
         rand = songLength - total
     if rest:
