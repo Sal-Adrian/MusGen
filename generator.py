@@ -86,7 +86,7 @@ def main():
                 nextChrdStr += '_'
             nextChrdStr += nextChrd[1][0]
             # print(nextChrdStr)
-            adapt.append(singleChord([nextChrdStr, rand]))
+            adapt.append(singleChord([nextChrdStr, rand], '5'))
         total += rand
         rest = not rest
 
