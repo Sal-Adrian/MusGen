@@ -1,3 +1,4 @@
+import sqlite3
 from format import *
 from random import randrange
 
@@ -15,6 +16,9 @@ prog1 = [["EbM", 4], ["BbM", 2], ["Eb7", 2], ["AbM", 4], ["Abm", 2], ["Db7", 2],
 
 prog = progression(prog1)
 
+
+db = sqlite3.connect('#GenChord.db')
+cursor = db.cursor()
 
 adapt = []
 rest = True
@@ -50,3 +54,5 @@ score.insert([0, melody])
 score.insert([0, chords])
 
 score.show()
+
+db.close()
