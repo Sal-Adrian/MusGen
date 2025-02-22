@@ -57,10 +57,10 @@ def main():
             else:
                 type = "o7"
             
-            sql = '''SELECT Next, Type FROM ChordProg 
-            WHERE Curr = '%s' AND DIST = 1 AND InCurrScale_1 = 1 AND 
-            InCurrScale_2 = 1 AND InCurrScale_3 = 1 AND InCurrScale_4 = 1
-            ORDER BY RANDOM() LIMIT 1'''
+            sql = '''SELECT Next, Type, D.Dist, n1, n2, n3, n4 FROM ChordProg C, DistTable D
+                WHERE Curr = '%s' AND D.Dist = 1 AND InCurrScale_1 = 1 AND 
+                InCurrScale_2 = 1 AND InCurrScale_3 = 1 AND InCurrScale_4 = 1 AND
+			    C.ProgID = D.ProgID ORDER BY RANDOM() LIMIT 1'''
             nextChrd = cursor.execute(sql % type)
             nextChrd = nextChrd.fetchone()
             if not nextChrd:
@@ -80,13 +80,13 @@ def main():
                 else:
                     tone = 2
             tone %= 12
-            # print(f"{str(progIndex)}  : {nextChrd}     : {tone}")
+
             nextChrdStr = TONES[tone]
             if len(nextChrdStr) < 2:
                 nextChrdStr += '_'
             nextChrdStr += nextChrd[1][0]
-            # print(nextChrdStr)
-            adapt.append(singleChord([nextChrdStr, rand], '5'))
+
+            adapt.append(singleChord(nextChrdStr, rand, '4', [nextChrd[3], nextChrd[4], nextChrd[5], nextChrd[6]]))
         total += rand
         rest = not rest
 

@@ -2,12 +2,9 @@ from music21 import *
 
 TONES = ["C", "D-", "D", "E-", "E", "F", "G-", "G", "A-", "A", "B-", "B"]
 
-def singleChord (chrdDur, octve):
-    if chrdDur[0] == "R":
+def singleChord (chrd, dur, octve, playNotes):
+    if chrd == "R":
         return nte(elt[0], elt[1])
-
-    chrd = chrdDur[0]
-    dur = chrdDur[1]
 
     tone = TONES.index(chrd[0])
     if chrd[1] == 'b':
@@ -33,14 +30,19 @@ def singleChord (chrdDur, octve):
     tone %= 12
     n4 = TONES[tone] + octve
 
-    result = chord.Chord([n1, n2, n3, n4])
+    ntes = [n1, n2, n3, n4]
+    playChrd = []
+    for i in range(4):
+        if playNotes[i] is not None:
+            playChrd.append(ntes[i])
+    result = chord.Chord(playChrd)
     result.duration.quarterLength = dur
     return result
 
 def progression (chords):
     prog = []
     for elt in chords:
-        prog.append(singleChord(elt, '2'))
+        prog.append(singleChord(elt[0], elt[1], '2', [1,1,1,1]))
     return prog
 
 def nte (n, dur):
