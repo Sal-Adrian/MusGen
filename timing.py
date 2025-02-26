@@ -4,6 +4,7 @@ import pygame.midi as md
 
 looping = False
 bpm = 250
+hitCount = 0
 
 def main():
     global player
@@ -22,12 +23,15 @@ def main():
     md.init()
     player = md.Output(0)
     player.set_instrument(121, 0)
+    tglLoop()
 
     btnStart = Button(mainFrame, text="Start", command=tglLoop)
     btn = Button(mainFrame, text="Click", command=clicked)
+    root.bind('<Return>', clickedE)
     btnStart.pack()
     btn.pack()
 
+    root.bind('<Escape>', lambda x: root.destroy())
     root.mainloop()
     md.quit()
 
@@ -52,6 +56,7 @@ def startLoop():
 def metOff():
     global player
     global stop
+
     stop = md.time()
     player.note_off(60,70,0)
     print(stop - start)
@@ -63,34 +68,51 @@ def clicked():
     global bpm
     global root
     global start
+    global hitCount
+
     player.set_instrument(127, 0)
     player.note_on(60, 70, 0)
     player.set_instrument(121, 0)
     now = md.time() - start
+    hitCount += 1
+
     root.after(bpm, clickerOff)
-    # print(f"             {now}")
+
     if now > bpm:
         now -= bpm
     now = bpm - now
     print(f"             {now}")
-    root.after(now, pianoOn)
+    if hitCount > 0:
+        root.after(now, pianoLoop)
 def clickerOff():
     global player
     player.note_off(60, 70, 0)
+def clickedE(e):
+    clicked()
 
-def pianoOn():
+def pianoLoop():
+    global hitCount
+
+    wait = 0
+    while hitCount > 0:
+        root.after(wait, lambda x=hitCount-1: pianoOn(x))
+        wait += 50
+        hitCount -= 1
+
+def pianoOn(pitchOffset):
     global player
     global bpm
     global root
+
     player.set_instrument(0, 0)
-    player.note_on(60, 100, 0)
+    player.note_on(60+pitchOffset, 100, 0)
     player.set_instrument(121, 0)
-    root.after(bpm, pianoOff)
-def pianoOff():
+
+    if pitchOffset > 0: root.after(50, lambda x=pitchOffset: pianoOff(x))
+    else: root.after(bpm, lambda x=pitchOffset: pianoOff(x))
+def pianoOff(pitchOffset):
     global player
-    player.note_off(60, 100, 0)
-
-
+    player.note_off(60+pitchOffset, 100, 0)
 
 
 
